@@ -56,6 +56,7 @@ import Navbar from "./pages/Navbar";
 import About from "./pages/About";
 import Footer from "./pages/Footer";
 import AdmissionProcess from "./pages/AdmissionProcess";
+import ApplyAdmission from "./pages/ApplyAdmission";
 
 
 
@@ -83,11 +84,15 @@ function App() {
 
         {/* Login */}
         <Route path="/login" element={<Login />} />
+        <Route path="/admin-login" element={<Login portalRole="admin" />} />
+        <Route path="/parent-login" element={<Login portalRole="parent" />} />
+        <Route path="/teacher-login" element={<Login portalRole="teacher" />} />
 
         {/* About */}
         <Route path="/about" element={<About />} />
 
         <Route path="/admission-process" element={<AdmissionProcess />} />
+        <Route path="/apply" element={<ApplyAdmission />} />
 
         {/* ================= PROTECTED CRM ROUTES ================= */}
 

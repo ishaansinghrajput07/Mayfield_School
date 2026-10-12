@@ -82,10 +82,10 @@ export default function App() {
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
 
-                <button className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold px-6 py-3.5 rounded-md transition-all duration-200 flex items-center gap-2 shadow-lg shadow-amber-400/20 text-sm tracking-wide">
+                <a href="/apply" className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold px-6 py-3.5 rounded-md transition-all duration-200 flex items-center gap-2 shadow-lg shadow-amber-400/20 text-sm tracking-wide">
                   APPLY FOR ADMISSION
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </a>
 
                 <a
                   href="#school-video"
@@ -766,10 +766,10 @@ export default function App() {
 
             <div className="space-y-3 pt-4">
 
-              <button className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold py-3 px-4 rounded transition-colors text-xs tracking-wider uppercase flex items-center justify-center gap-2">
+              <a href="/apply" className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold py-3 px-4 rounded transition-colors text-xs tracking-wider uppercase flex items-center justify-center gap-2">
                 APPLY NOW
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </a>
 
               <a
                 href="#request-info"

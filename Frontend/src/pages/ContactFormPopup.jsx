@@ -452,7 +452,7 @@ const ContactFormPopup = () => {
 
                 {/* APPLY */}
                 <a
-                  href="#contact"
+                  href="/apply"
                   onClick={handleClose}
                   className="popup-cta group relative flex h-11 flex-1 items-center justify-center gap-2 overflow-hidden rounded-full bg-blue-900 px-5 text-[9px] font-black uppercase tracking-[0.16em] text-white shadow-[0_10px_30px_rgba(30,64,175,0.22)] transition-all duration-300 hover:-translate-y-1 hover:bg-slate-900 sm:flex-none"
                 >

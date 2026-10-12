@@ -269,7 +269,7 @@ const Header = () => {
               PREMIUM APPLY NOW BUTTON
           ===================================================== */}
           <a
-            href="/admissions"
+            href="/apply"
             className="
               group
               relative

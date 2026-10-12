@@ -3,11 +3,11 @@ import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-const Login = () => {
+const Login = ({ portalRole }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { login, user, loading } = useAuth();
+  const { login, logout, user, loading } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -57,6 +57,12 @@ const Login = () => {
       return;
     }
 
+    if (portalRole && result.data?.role !== portalRole) {
+      await logout();
+      setError(`This account is not registered for the ${portalRole} portal.`);
+      return;
+    }
+
     const redirectPath = location.state?.from || "/dashboard";
 
     navigate(redirectPath, {
@@ -100,15 +106,19 @@ const Login = () => {
             <div className="mx-auto max-w-md">
               <div className="mb-8">
                 <p className="text-sm font-semibold text-slate-500">
-                  Welcome back
+                  {portalRole
+                    ? `${portalRole[0].toUpperCase()}${portalRole.slice(1)} Portal`
+                    : "Welcome back"}
                 </p>
 
                 <h2 className="mt-2 text-3xl font-bold text-slate-950">
-                  Sign in
+                  {portalRole ? `Sign in to ${portalRole} account` : "Sign in"}
                 </h2>
 
                 <p className="mt-2 text-sm text-slate-500">
-                  Access your MAYFIELD GLOBAL SCHOOL account.
+                  {portalRole
+                    ? `Access the ${portalRole} portal for MAYFIELD GLOBAL SCHOOL.`
+                    : "Access your MAYFIELD GLOBAL SCHOOL account."}
                 </p>
               </div>
 

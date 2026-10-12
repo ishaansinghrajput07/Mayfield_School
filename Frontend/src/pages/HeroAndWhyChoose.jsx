@@ -121,7 +121,7 @@ const HeroAndWhyChoose = () => {
           <div className="hero-content-animation-delay-3 mt-8 flex flex-wrap items-center justify-center gap-4">
 
             <a
-              href="#admissions"
+              href="/apply"
               className="group flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-xs font-bold text-slate-950 shadow-[0_15px_40px_rgba(245,158,11,0.20)] transition-all duration-500 hover:-translate-y-1 hover:bg-amber-300 hover:shadow-[0_20px_50px_rgba(245,158,11,0.30)] active:scale-95 sm:text-sm"
             >
 

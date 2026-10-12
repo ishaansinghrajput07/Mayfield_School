@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler");
+const crypto = require("crypto");
 const ContactInquiry = require("../models/ContactInquiry");
 const { emitToAdmins } = require("../utils/realtime");
 
@@ -31,6 +32,7 @@ const submitContactInquiry = asyncHandler(async (req, res) => {
     phone: phone.trim().slice(0, 30),
     email: email.trim().toLowerCase().slice(0, 254),
     message: message.trim(),
+    queryNumber: `QRY-${Date.now()}-${crypto.randomBytes(3).toString("hex").toUpperCase()}`,
     ip: req.ip,
   });
 

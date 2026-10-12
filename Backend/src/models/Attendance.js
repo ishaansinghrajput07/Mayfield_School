@@ -4,6 +4,9 @@ const attendanceSchema = new mongoose.Schema(
   {
     student: { type: mongoose.Schema.Types.ObjectId, ref: "Student", required: true },
     class: { type: mongoose.Schema.Types.ObjectId, ref: "Class", required: true },
+    academicSession: { type: mongoose.Schema.Types.ObjectId, ref: "AcademicSession" },
+    section: { type: mongoose.Schema.Types.ObjectId, ref: "Section" },
+    subject: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
     date: { type: Date, required: true },
     status: { type: String, enum: ["present", "absent", "late", "half_day"], required: true },
     remarks: { type: String, trim: true },

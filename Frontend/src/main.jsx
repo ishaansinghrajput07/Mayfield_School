@@ -5,6 +5,7 @@ import App from "./App";
 
 import { AuthProvider } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
+import ToastProvider from "./components/ToastProvider";
 
 import "./index.css";
 
@@ -14,7 +15,9 @@ ReactDOM.createRoot(
   <React.StrictMode>
     <AuthProvider>
       <NotificationProvider>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </NotificationProvider>
     </AuthProvider>
   </React.StrictMode>

@@ -8,6 +8,281 @@ const Notice = require("../models/Notice");
 const Transaction = require("../models/Transaction");
 const Assignment = require("../models/Assignment");
 const Project = require("../models/Project");
+const User = require("../models/User");
+const Program = require("../models/Program");
+const AcademicSession = require("../models/AcademicSession");
+const Class = require("../models/Class");
+const Section = require("../models/Section");
+const Subject = require("../models/Subject");
+const TeachingSchedule = require("../models/TeachingSchedule");
+const AdminAdmission = require("../models/AdminAdmission");
+const AdmissionApplication = require("../models/AdmissionApplication");
+const Enrollment = require("../models/Enrollment");
+const Membership = require("../models/Membership");
+const FeeAssignment = require("../models/FeeAssignment");
+const CrmPayment = require("../models/CrmPayment");
+const Renewal = require("../models/Renewal");
+const ContactInquiry = require("../models/ContactInquiry");
+const TrialBooking = require("../models/TrialBooking");
+const AuditLog = require("../models/AuditLog");
+
+const countByStatus = async (Model, statuses, baseQuery = {}) =>
+  Object.fromEntries(
+    await Promise.all(
+      statuses.map(async (status) => [
+        status,
+        await Model.countDocuments({ ...baseQuery, status }),
+      ])
+    )
+  );
+
+// @desc    CRM dashboard summary for admins and teachers
+// @route   GET /api/dashboard
+const getOverviewDashboard = asyncHandler(async (req, res) => {
+  if (!["admin", "teacher"].includes(req.user.role)) {
+    res.status(403);
+    throw new Error("The CRM dashboard is available to administrators and teachers");
+  }
+
+  const isTeacher = req.user.role === "teacher";
+  const now = new Date();
+  const startOfDay = new Date(now);
+  startOfDay.setHours(0, 0, 0, 0);
+  const startOfTomorrow = new Date(startOfDay);
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const withinSevenDays = new Date(startOfDay);
+  withinSevenDays.setDate(withinSevenDays.getDate() + 7);
+  const withinThirtyDays = new Date(startOfDay);
+  withinThirtyDays.setDate(withinThirtyDays.getDate() + 30);
+
+  const attendanceQuery = {
+    date: { $gte: startOfDay, $lt: startOfTomorrow },
+    ...(isTeacher ? { markedBy: req.user._id } : {}),
+  };
+  const scheduleQuery = {
+    ...(isTeacher ? { instructor: req.user._id } : {}),
+  };
+  const activityQuery = {
+    ...(isTeacher ? { userId: req.user._id } : {}),
+  };
+
+  const [
+    studentTotal,
+    studentActive,
+    parentTotal,
+    parentActive,
+    teacherTotal,
+    teacherActive,
+    programTotal,
+    programActive,
+    sessionTotal,
+    sessionActive,
+    classTotal,
+    sectionTotal,
+    sectionActive,
+    subjectTotal,
+    scheduleTotal,
+    scheduleActive,
+    admissionCounts,
+    publicAdmissionCounts,
+    enrollmentCounts,
+    membershipActive,
+    membershipExpired,
+    membershipExpiring,
+    membershipExpiringSevenDays,
+    assignmentCounts,
+    paymentCounts,
+    successfulPaymentTotals,
+    attendanceRecords,
+    renewalCounts,
+    renewalPaymentCounts,
+    inquiryCounts,
+    trialCounts,
+    trialToday,
+    teacherSchedules,
+    recentActivity,
+  ] = await Promise.all([
+    isTeacher ? Promise.resolve(0) : User.countDocuments({ role: "student" }),
+    isTeacher ? Promise.resolve(0) : Student.countDocuments({ status: "active" }),
+    isTeacher ? Promise.resolve(0) : User.countDocuments({ role: "parent" }),
+    isTeacher ? Promise.resolve(0) : User.countDocuments({ role: "parent", isActive: true }),
+    isTeacher ? Promise.resolve(0) : User.countDocuments({ role: "teacher" }),
+    isTeacher ? Promise.resolve(0) : User.countDocuments({ role: "teacher", isActive: true }),
+    isTeacher ? Promise.resolve(0) : Program.countDocuments(),
+    isTeacher ? Promise.resolve(0) : Program.countDocuments({ status: "active" }),
+    isTeacher ? Promise.resolve(0) : AcademicSession.countDocuments(),
+    isTeacher ? Promise.resolve(0) : AcademicSession.countDocuments({ status: "active" }),
+    isTeacher ? Promise.resolve(0) : Class.countDocuments(),
+    isTeacher ? Promise.resolve(0) : Section.countDocuments(),
+    isTeacher ? Promise.resolve(0) : Section.countDocuments({ status: "active" }),
+    isTeacher ? Promise.resolve(0) : Subject.countDocuments(),
+    TeachingSchedule.countDocuments(scheduleQuery),
+    TeachingSchedule.countDocuments({ ...scheduleQuery, status: "active" }),
+    isTeacher ? Promise.resolve({}) : countByStatus(AdminAdmission, ["pending", "approved", "rejected"]),
+    isTeacher ? Promise.resolve({}) : countByStatus(AdmissionApplication, ["pending", "approved", "rejected"]),
+    isTeacher ? Promise.resolve({}) : countByStatus(Enrollment, ["active", "completed", "withdrawn"]),
+    isTeacher ? Promise.resolve(0) : Membership.countDocuments({ status: "active" }),
+    isTeacher ? Promise.resolve(0) : Membership.countDocuments({ status: "expired" }),
+    isTeacher ? Promise.resolve(0) : Membership.countDocuments({ status: { $in: ["active", "expiring"] }, endDate: { $gte: startOfDay, $lt: withinThirtyDays } }),
+    isTeacher ? Promise.resolve(0) : Membership.countDocuments({ status: { $in: ["active", "expiring"] }, endDate: { $gte: startOfDay, $lt: withinSevenDays } }),
+    isTeacher ? Promise.resolve({}) : countByStatus(FeeAssignment, ["paid", "due", "overdue", "partial"]),
+    isTeacher
+      ? Promise.resolve({})
+      : Promise.all([
+          CrmPayment.countDocuments({ paymentStatus: "success" }),
+          CrmPayment.countDocuments({ paymentStatus: "pending" }),
+        ]).then(([success, pending]) => ({ success, pending })),
+    isTeacher
+      ? Promise.resolve([])
+      : CrmPayment.aggregate([
+          { $match: { paymentStatus: "success", paymentDate: { $gte: startOfMonth } } },
+          { $facet: {
+            today: [
+              { $match: { paymentDate: { $gte: startOfDay, $lt: startOfTomorrow } } },
+              { $group: { _id: null, amount: { $sum: "$amount" }, count: { $sum: 1 } } },
+            ],
+            month: [{ $group: { _id: null, amount: { $sum: "$amount" }, count: { $sum: 1 } } }],
+          } },
+        ]),
+    Attendance.find(attendanceQuery).select("status"),
+    isTeacher ? Promise.resolve({}) : countByStatus(Renewal, ["pending", "approved", "completed", "cancelled"]),
+    isTeacher
+      ? Promise.resolve({})
+      : Renewal.countDocuments({ paymentStatus: "partial" }).then((partial) => ({ partial })),
+    isTeacher ? Promise.resolve({}) : countByStatus(ContactInquiry, ["pending", "open", "assigned", "in_progress", "resolved", "closed"]),
+    isTeacher ? Promise.resolve({}) : countByStatus(TrialBooking, ["pending", "contacted", "approved", "completed", "cancelled"]),
+    isTeacher
+      ? Promise.resolve(0)
+      : TrialBooking.countDocuments({ preferredDate: { $gte: startOfDay, $lt: startOfTomorrow } }),
+    isTeacher
+      ? TeachingSchedule.find(scheduleQuery)
+          .populate("program", "name")
+          .populate("academicSession", "name")
+          .populate("class", "name")
+          .populate("section", "name")
+          .populate("subject", "name")
+          .sort({ createdAt: -1 })
+      : Promise.resolve([]),
+    AuditLog.find(activityQuery)
+      .populate("userId", "name")
+      .sort({ createdAt: -1 })
+      .limit(10),
+  ]);
+
+  const attendance = attendanceRecords.reduce(
+    (result, record) => {
+      result.total += 1;
+      if (record.status === "present") result.present += 1;
+      else if (record.status === "absent") result.absent += 1;
+      else if (record.status === "late") result.late += 1;
+      else if (record.status === "half_day") result.excused += 1;
+      return result;
+    },
+    { total: 0, present: 0, absent: 0, late: 0, excused: 0 }
+  );
+  attendance.percentage = attendance.total
+    ? Math.round((attendance.present / attendance.total) * 1000) / 10
+    : 0;
+
+  const applicationValues = [
+    ...Object.values(admissionCounts),
+    ...Object.values(publicAdmissionCounts),
+  ];
+  const paymentTotals = successfulPaymentTotals[0] || { today: [], month: [] };
+  const todayPayments = paymentTotals.today[0] || { amount: 0, count: 0 };
+  const monthPayments = paymentTotals.month[0] || { amount: 0, count: 0 };
+  const activity = recentActivity.map((item) => {
+    const entry = item.toObject();
+    const [firstName = "", ...lastName] = (entry.userId?.name || "").split(/\s+/);
+    return {
+      ...entry,
+      userId: entry.userId ? { firstName, lastName: lastName.join(" ") } : null,
+    };
+  });
+
+  res.json({
+    success: true,
+    data: isTeacher
+      ? {
+          assignments: { total: scheduleTotal, items: teacherSchedules },
+          attendance,
+          recentActivity: activity,
+        }
+      : {
+          users: {
+            students: { total: studentTotal, active: studentActive },
+            parents: { total: parentTotal, active: parentActive },
+            teachers: { total: teacherTotal, active: teacherActive },
+          },
+          academics: {
+            programs: { total: programTotal, active: programActive },
+            academicSessions: { total: sessionTotal, active: sessionActive },
+            classes: { total: classTotal, active: classTotal },
+            sections: { total: sectionTotal, active: sectionActive },
+            subjects: { total: subjectTotal, active: subjectTotal },
+            schedules: { total: scheduleTotal, active: scheduleActive },
+          },
+          admissions: {
+            total: applicationValues.reduce((total, count) => total + count, 0),
+            pending: (admissionCounts.pending || 0) + (publicAdmissionCounts.pending || 0),
+            approved: (admissionCounts.approved || 0) + (publicAdmissionCounts.approved || 0),
+            rejected: (admissionCounts.rejected || 0) + (publicAdmissionCounts.rejected || 0),
+            cancelled: 0,
+          },
+          enrollments: {
+            total: Object.values(enrollmentCounts).reduce((total, count) => total + count, 0),
+            active: enrollmentCounts.active || 0,
+            completed: enrollmentCounts.completed || 0,
+            transferred: 0,
+            withdrawn: enrollmentCounts.withdrawn || 0,
+          },
+          memberships: {
+            active: membershipActive,
+            expired: membershipExpired,
+            expiring: membershipExpiring,
+            expiring7Days: membershipExpiringSevenDays,
+          },
+          fees: {
+            assignments: {
+              total: Object.values(assignmentCounts).reduce((total, count) => total + count, 0),
+              paid: assignmentCounts.paid || 0,
+              due: (assignmentCounts.due || 0) + (assignmentCounts.partial || 0),
+              overdue: assignmentCounts.overdue || 0,
+            },
+          },
+          payments: {
+            successful: paymentCounts.success || 0,
+            pending: paymentCounts.pending || 0,
+            today: { amount: todayPayments.amount, count: todayPayments.count },
+            month: { amount: monthPayments.amount, count: monthPayments.count },
+          },
+          attendance,
+          renewals: {
+            pending: renewalCounts.pending || 0,
+            approved: renewalCounts.approved || 0,
+            partial: renewalPaymentCounts.partial || 0,
+            completed: renewalCounts.completed || 0,
+            cancelled: renewalCounts.cancelled || 0,
+          },
+          queries: {
+            total: Object.values(inquiryCounts).reduce((total, count) => total + count, 0),
+            new: inquiryCounts.pending || 0,
+            open: inquiryCounts.open || 0,
+            inProgress: (inquiryCounts.assigned || 0) + (inquiryCounts.in_progress || 0),
+            resolved: (inquiryCounts.resolved || 0) + (inquiryCounts.closed || 0),
+          },
+          trials: {
+            pending: trialCounts.pending || 0,
+            confirmed: (trialCounts.contacted || 0) + (trialCounts.approved || 0),
+            completed: trialCounts.completed || 0,
+            cancelled: trialCounts.cancelled || 0,
+            today: trialToday,
+          },
+          recentActivity: activity,
+        },
+  });
+});
 
 // @desc    Admin dashboard stats + chart data
 // @route   GET /api/dashboard/admin
@@ -179,4 +454,4 @@ const getStudentDashboard = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getAdminDashboard, getStudentDashboard };
+module.exports = { getAdminDashboard, getStudentDashboard, getOverviewDashboard };

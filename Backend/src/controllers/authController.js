@@ -257,6 +257,9 @@ const signup = asyncHandler(async (req, res, next) => {
 // @route   GET /api/auth/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res.json({ success: true, user: null });
+  }
   const user = await User.findById(req.user._id).select("+avatar").populate("student");
   res.json({ success: true, user });
 });

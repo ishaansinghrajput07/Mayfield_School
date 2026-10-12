@@ -12,16 +12,15 @@ const initRealtime = (io) => {
   ioInstance = io;
 
   io.on("connection", (socket) => {
-    // Client sends { userId, role } right after connecting (see frontend socket.js)
-    socket.on("register", ({ userId, role } = {}) => {
-      if (!userId) return;
+    const user = socket.request.user;
+    const userId = user?._id?.toString();
+
+    if (userId) {
       socket.data.userId = userId;
       if (!userSockets.has(userId)) userSockets.set(userId, new Set());
       userSockets.get(userId).add(socket.id);
-      // Admins join a shared room so emitToAdmins() below can reach every
-      // admin session at once without tracking each one individually.
-      if (role === "admin") socket.join("admins");
-    });
+      if (user.role === "admin") socket.join("admins");
+    }
 
     // Anyone viewing an event's detail/registration page joins its room so
     // they see the live registered-count update the moment anyone else

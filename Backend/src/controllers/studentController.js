@@ -16,6 +16,27 @@ const generateTempPassword = () => {
   return `${word}${digits}!`;
 };
 
+const studentDto = (student) => {
+  const result = student.toObject ? student.toObject({ virtuals: true }) : student;
+  const user = result.user && typeof result.user === "object" ? result.user : null;
+  const className = result.class && typeof result.class === "object" ? result.class.name : "";
+  return {
+    ...result,
+    email: user?.email || result.email || "",
+    profile: {
+      dateOfBirth: result.dob || null,
+      gender: result.gender || "",
+      address: result.address || "",
+      city: result.city || "",
+      state: result.state || "",
+      postalCode: result.postalCode || "",
+      admissionDate: result.admissionDate || null,
+      currentClass: className,
+      currentSection: result.section || "",
+    },
+  };
+};
+
 // @desc    List / search / filter students
 // @route   GET /api/students
 // @access  Private/Admin
@@ -37,13 +58,14 @@ const getStudents = asyncHandler(async (req, res) => {
   const students = await Student.find(query)
     .select("-photo")
     .populate("class", "name")
+    .populate("user", "email")
     .sort({ createdAt: -1 })
     .limit(Number(limit))
     .skip((Number(page) - 1) * Number(limit));
 
   const total = await Student.countDocuments(query);
 
-  res.json({ success: true, count: students.length, total, page: Number(page), students });
+  res.json({ success: true, count: students.length, total, page: Number(page), students: students.map(studentDto) });
 });
 
 // @desc    Get single student profile
@@ -53,6 +75,7 @@ const getStudents = asyncHandler(async (req, res) => {
 const getStudent = asyncHandler(async (req, res) => {
   const student = await Student.findById(req.params.id)
     .select("+photo")
+    .populate("user", "email")
     .populate({
       path: "class",
       select: "name sections classTeacher semesterCount allowSelfResultEntry",
@@ -73,7 +96,7 @@ const getStudent = asyncHandler(async (req, res) => {
     throw new Error("You don't have access to this student");
   }
 
-  res.json({ success: true, student });
+  res.json({ success: true, student: studentDto(student) });
 });
 
 // @desc    Logged-in student's own profile (convenience alias for getStudent
@@ -83,6 +106,7 @@ const getStudent = asyncHandler(async (req, res) => {
 const getMyProfile = asyncHandler(async (req, res) => {
   const student = await Student.findOne({ user: req.user._id })
     .select("+photo")
+    .populate("user", "email")
     .populate({
       path: "class",
       select: "name sections classTeacher semesterCount allowSelfResultEntry",
@@ -92,7 +116,7 @@ const getMyProfile = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Student profile not found");
   }
-  res.json({ success: true, student });
+  res.json({ success: true, student: studentDto(student) });
 });
 
 // @desc    Student self-service profile update - deliberately limited to
@@ -141,7 +165,33 @@ const updateMyProfile = asyncHandler(async (req, res) => {
 // @route   POST /api/students
 // @access  Private/Admin
 const createStudent = asyncHandler(async (req, res) => {
-  const { createLogin = true, loginEmail, ...studentBody } = req.body;
+  const {
+    createLogin = true,
+    loginEmail,
+    email: submittedEmail,
+    password: submittedPassword,
+    dateOfBirth,
+    ...studentBody
+  } = req.body;
+  const email = (loginEmail || submittedEmail || studentBody.parent?.email || "").trim().toLowerCase();
+
+  if (submittedPassword && !email) {
+    res.status(400);
+    throw new Error("An email address is required when setting a student login password");
+  }
+  if (submittedPassword && submittedPassword.length < 6) {
+    res.status(400);
+    throw new Error("Password must be at least 6 characters");
+  }
+  if (createLogin && email && await User.exists({ email })) {
+    res.status(409);
+    throw new Error("A user with this email already exists");
+  }
+  if (dateOfBirth !== undefined) studentBody.dob = dateOfBirth || undefined;
+  if (!studentBody.gender) studentBody.gender = undefined;
+  if (studentBody.admissionDate === null || studentBody.admissionDate === "") {
+    studentBody.admissionDate = undefined;
+  }
 
   // 0. Auto-generate a unique student ID (admission number) when the admin
   //    doesn't type one in - every student must have one, so we never leave
@@ -162,37 +212,38 @@ const createStudent = asyncHandler(async (req, res) => {
   const validTill = new Date(issuedDate);
   validTill.setFullYear(validTill.getFullYear() + 1); // school ID cards renew yearly
 
-  const student = await Student.create({
+  const student = new Student({
     ...studentBody,
     idCard: { cardNumber, issuedDate, validTill },
   });
+  await student.validate();
+
+  // The user email and password in the admin form create the student's portal account.
+  let credentials = null;
+  if (createLogin && email) {
+    const password = submittedPassword || generateTempPassword();
+    const user = await User.create({
+      name: `${student.firstName} ${student.lastName || ""}`.trim(),
+      email,
+      password,
+      role: "student",
+    });
+    student.user = user._id;
+    try {
+      await student.save();
+    } catch (error) {
+      await User.deleteOne({ _id: user._id });
+      throw error;
+    }
+    if (!submittedPassword) credentials = { email: user.email, tempPassword: password };
+  } else {
+    await student.save();
+  }
 
   if (studentBody.class) await applyFeeStructuresToStudent(student._id, studentBody.class);
 
-  // 2. Optionally create the login account in the same request, so admins don't
-  //    have to remember a second step. Requires an email (student's own or parent's).
-  let credentials = null;
-  const email = loginEmail || studentBody.parent?.email;
-
-  if (createLogin && email) {
-    const existing = await User.findOne({ email: email.toLowerCase() });
-    if (!existing) {
-      const tempPassword = generateTempPassword();
-      const user = await User.create({
-        name: `${student.firstName} ${student.lastName || ""}`.trim(),
-        email,
-        password: tempPassword,
-        role: "student",
-        student: student._id,
-      });
-      student.user = user._id;
-      await student.save();
-      credentials = { email: user.email, tempPassword };
-    }
-  }
-
-  const populated = await Student.findById(student._id).populate("class", "name");
-  res.status(201).json({ success: true, student: populated, credentials });
+  const populated = await Student.findById(student._id).populate("class", "name").populate("user", "email");
+  res.status(201).json({ success: true, student: studentDto(populated), credentials });
 });
 
 // @desc    Get a student's ID card

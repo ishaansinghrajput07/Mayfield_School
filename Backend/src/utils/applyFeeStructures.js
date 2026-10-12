@@ -17,7 +17,8 @@ const isSampleStructure = (structure) =>
 async function applyFeeStructuresToStudent(studentId, classId) {
   if (!classId) return [];
 
-  const structures = (await FeeStructure.find({ class: classId })).filter((structure) => !isSampleStructure(structure));
+  const structures = (await FeeStructure.find({ class: classId, status: { $ne: "inactive" } }))
+    .filter((structure) => !isSampleStructure(structure));
   if (!structures.length) return [];
 
   const created = [];
@@ -41,7 +42,7 @@ async function applyFeeStructuresToStudent(studentId, classId) {
  * that class right now (not just future signups/promotions into it).
  */
 async function applyNewStructureToExistingStudents(structure) {
-  if (isSampleStructure(structure)) return [];
+  if (structure.status === "inactive" || isSampleStructure(structure)) return [];
 
   const students = await Student.find({ class: structure.class }, "_id");
   const created = [];

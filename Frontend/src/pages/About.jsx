@@ -552,7 +552,7 @@ const AboutPage = () => {
                   </a>
 
                   <a
-                    href="#contact"
+                    href="/apply"
                     className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/[0.06] px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:border-white/40 hover:bg-white/10"
                   >
                     Apply Now
@@ -1504,7 +1504,7 @@ const AboutPage = () => {
               </div>
 
               <a
-                href="#contact"
+                href="/apply"
                 className="group inline-flex shrink-0 items-center justify-center gap-3 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-[#E51F2B] shadow-[0_10px_30px_rgba(0,0,0,.12)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#FFF7F7]"
               >
                 Apply Now

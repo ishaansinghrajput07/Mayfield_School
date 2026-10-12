@@ -6,7 +6,7 @@ A MERN-stack School CRM / management system for handling students, staff, and ad
 
 - **Backend:** Node.js, Express
 - **Database:** MongoDB (Atlas)
-- **Auth:** JWT-based authentication
+- **Auth:** Session-based authentication
 - **File/Image Storage:** Cloudinary
 - **Email:** Nodemailer (SMTP)
 - **SMS / OTP:** Twilio or MSG91 (optional — falls back to console logging in dev)
@@ -74,6 +74,20 @@ npm run seed
 ```
 
 The seed is safe to re-run: it skips public-content collections that already contain records and never overwrites them. Sample fee structures are excluded from creating student charges. Sample gallery images are served by the backend from `/demo-gallery`.
+
+### Create or reset the admin login
+
+Set `ADMIN_NAME`, `ADMIN_EMAIL`, and a strong `ADMIN_PASSWORD` in your local, uncommitted `.env`, then run this from the `Backend` directory:
+
+```bash
+npm run create-admin
+```
+
+This creates the configured admin account or resets the password of that same admin account. It does not print the password. Never use a default or source-controlled password; use the configured email/password to sign in at `/admin-login` and rotate the password after bootstrap if it was shared.
+
+### Teacher and parent accounts
+
+Teacher and parent sign-in use the same secure authentication system as admins, with role-specific entry pages at `/teacher-login` and `/parent-login`. Create those accounts from the Admin panel’s Teachers and Parents pages; use a unique email and a temporary password for each person, then share credentials privately. Role checks prevent a teacher or parent account from opening admin-only pages.
 
 ### 4. Run the server
 

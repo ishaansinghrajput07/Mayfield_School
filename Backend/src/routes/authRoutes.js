@@ -53,7 +53,7 @@ router.post("/signup", signup);
 router.post("/register", protect, authorize("admin"), register);
 router.post("/forgot-password", resetLimiter, forgotPassword);
 router.put("/reset-password/:token", resetLimiter, resetPassword);
-router.get("/me", protect, getMe);
+router.get("/me", getMe);
 router.put("/me", protect, updateMe);
 router.put("/change-password", protect, changePassword);
 

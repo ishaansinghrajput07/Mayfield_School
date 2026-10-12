@@ -6,6 +6,8 @@ const classSchema = new mongoose.Schema(
     // Sort key so the class list always reads Nursery -> LKG -> UKG -> Grade 1...Grade 12,
     // never alphabetically (which would put "Grade 10" before "Grade 2").
     order: { type: Number, required: true },
+    program: { type: mongoose.Schema.Types.ObjectId, ref: "Program" },
+    academicSession: { type: mongoose.Schema.Types.ObjectId, ref: "AcademicSession" },
     sections: [{ type: String, trim: true }], // e.g. ["A", "B"]
     classTeacher: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     // Admin-controlled: how many semesters/terms this class is divided into.

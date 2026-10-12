@@ -1,5 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Attendance = require("../models/Attendance");
+const Section = require("../models/Section");
+const Enrollment = require("../models/Enrollment");
 const Student = require("../models/Student");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
@@ -90,10 +92,20 @@ const markAttendance = asyncHandler(async (req, res) => {
 // @route   GET /api/attendance
 // @access  Private
 const getAttendance = asyncHandler(async (req, res) => {
-  const { student, class: classId, from, to } = req.query;
+  const { student, class: classId, from, to, academicSession, section, subject, date } = req.query;
   const query = {};
   if (student) query.student = student;
   if (classId) query.class = classId;
+  if (academicSession) query.academicSession = academicSession;
+  if (section) query.section = section;
+  if (subject) query.subject = subject;
+  if (date) {
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+    query.date = { $gte: start, $lte: end };
+  }
   if (from || to) {
     query.date = {};
     if (from) query.date.$gte = new Date(from);
@@ -102,9 +114,94 @@ const getAttendance = asyncHandler(async (req, res) => {
 
   const records = await Attendance.find(query)
     .populate("student", "firstName lastName admissionNumber")
+    .populate("section", "name code")
+    .populate("subject", "name")
     .sort({ date: -1 });
 
   res.json({ success: true, count: records.length, records });
+});
+
+const getSectionAttendanceStudents = asyncHandler(async (req, res) => {
+  const section = await Section.findById(req.params.sectionId);
+  if (!section) {
+    res.status(404);
+    throw new Error("Section not found");
+  }
+  if (req.query.class && String(req.query.class) !== String(section.class)) {
+    res.status(400);
+    throw new Error("Selected section does not belong to the requested class");
+  }
+  if (req.query.academicSession && String(req.query.academicSession) !== String(section.academicSession)) {
+    res.status(400);
+    throw new Error("Selected section does not belong to the requested academic session");
+  }
+  const enrollments = await Enrollment.find({
+    class: section.class,
+    section: section._id,
+    academicSession: section.academicSession,
+    status: "active",
+  }).select("student");
+  const query = enrollments.length
+    ? { _id: { $in: enrollments.map((enrollment) => enrollment.student) }, status: "active" }
+    : { class: section.class, section: section.name, status: "active" };
+  const students = await Student.find(query).select("-photo").populate("class", "name").sort({ lastName: 1, firstName: 1 });
+  res.json({ success: true, students, count: students.length });
+});
+
+const saveSingleAttendance = asyncHandler(async (req, res) => {
+  const { student, class: classId, academicSession, section, subject, date, status, remarks } = req.body;
+  if (!student || !classId || !date || !status) {
+    res.status(400);
+    throw new Error("Student, class, date and status are required");
+  }
+  if (req.user.role === "teacher") {
+    const allowed = await getTeacherClassIds(req.user._id);
+    if (!allowed.has(String(classId))) {
+      res.status(403);
+      throw new Error("You can only manage attendance for your own classes");
+    }
+  }
+  if (section && !await Section.exists({ _id: section, class: classId, ...(academicSession ? { academicSession } : {}) })) {
+    res.status(400);
+    throw new Error("Selected section does not belong to the class and academic session");
+  }
+  const studentRecord = await Student.findOne({ _id: student, class: classId, status: "active" });
+  if (!studentRecord) {
+    res.status(400);
+    throw new Error("Selected student is not active in this class");
+  }
+  const day = new Date(date);
+  if (!Number.isFinite(day.getTime())) {
+    res.status(400);
+    throw new Error("Attendance date is invalid");
+  }
+  const attendance = await Attendance.findOneAndUpdate(
+    { student, date: day },
+    { student, class: classId, academicSession, section, subject, date: day, status, remarks, markedBy: req.user._id },
+    { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
+  ).populate("student", "firstName lastName admissionNumber");
+  res.json({ success: true, attendance });
+});
+
+const updateSingleAttendance = asyncHandler(async (req, res) => {
+  const attendance = await Attendance.findById(req.params.id);
+  if (!attendance) {
+    res.status(404);
+    throw new Error("Attendance record not found");
+  }
+  if (req.user.role === "teacher") {
+    const allowed = await getTeacherClassIds(req.user._id);
+    if (!allowed.has(String(attendance.class))) {
+      res.status(403);
+      throw new Error("You can only manage attendance for your own classes");
+    }
+  }
+  if (req.body.status !== undefined) attendance.status = req.body.status;
+  if (req.body.remarks !== undefined) attendance.remarks = req.body.remarks;
+  if (req.body.date !== undefined) attendance.date = new Date(req.body.date);
+  attendance.markedBy = req.user._id;
+  await attendance.save();
+  res.json({ success: true, attendance });
 });
 
 // @desc    Attendance percentage summary for one student - overall, plus
@@ -215,4 +312,4 @@ const getClassEligibility = asyncHandler(async (req, res) => {
   res.json({ success: true, requiredPercent, roster });
 });
 
-module.exports = { markAttendance, getAttendance, getAttendanceSummary, getMyClasses, getClassEligibility };
+module.exports = { markAttendance, getAttendance, getAttendanceSummary, getMyClasses, getClassEligibility, getSectionAttendanceStudents, saveSingleAttendance, updateSingleAttendance };

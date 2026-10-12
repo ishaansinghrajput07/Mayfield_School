@@ -63,22 +63,14 @@ export const AuthProvider = ({ children }) => {
   // =========================
 
 useEffect(() => {
-  console.log("AUTH USER:", user);
-
   const userId = user?._id || user?.id;
 
   if (!userId) {
-    console.log("SOCKET NOT CONNECTING: user id missing");
     disconnectSocket();
     return;
   }
 
-  console.log(
-    "Connecting notification socket for user:",
-    userId
-  );
-
-  connectSocket(userId);
+  connectSocket();
 
   return () => {
     disconnectSocket();

@@ -35,6 +35,19 @@ const userSchema = new mongoose.Schema(
     children: [{ type: mongoose.Schema.Types.ObjectId, ref: "Student" }], // used when role is "parent"
     // Only meaningful for role === "admin" (staff) - shown in the Salaries module
     dateOfJoining: { type: Date },
+    teacherProfile: {
+      qualification: { type: String, trim: true },
+      specialization: { type: String, trim: true },
+      employeeType: { type: String, enum: ["full_time", "part_time", "contract"], default: "full_time" },
+    },
+    parentProfile: {
+      occupation: { type: String, trim: true },
+      address: { type: String, trim: true },
+      city: { type: String, trim: true },
+      state: { type: String, trim: true },
+      postalCode: { type: String, trim: true },
+      emergencyContact: { type: String, trim: true },
+    },
     lastLogin: { type: Date },
     // Forgot-password flow: a random token is emailed to the user; only its
     // SHA-256 hash is stored so a DB leak alone can't be used to reset accounts.

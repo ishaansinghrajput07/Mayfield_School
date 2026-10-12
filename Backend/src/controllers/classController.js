@@ -3,7 +3,11 @@ const Class = require("../models/Class");
 const Student = require("../models/Student");
 
 const getClasses = asyncHandler(async (req, res) => {
-  const classes = await Class.find().populate("classTeacher", "name email").sort({ order: 1 });
+  const classes = await Class.find()
+    .populate("classTeacher", "name email")
+    .populate("program", "name code")
+    .populate("academicSession", "name code startDate endDate")
+    .sort({ order: 1 });
 
   // Attach a live student count per class so the admin UI can show
   // "32 / 40 per section" style capacity indicators without a second round-trip.
@@ -29,8 +33,22 @@ const getClasses = asyncHandler(async (req, res) => {
 });
 
 const getPublicClasses = asyncHandler(async (req, res) => {
-  const classes = await Class.find().select("name order sections").sort({ order: 1 });
+  const classes = await Class.find().select("name order sections program academicSession").sort({ order: 1 })
+    .populate("program", "name code")
+    .populate("academicSession", "name code startDate endDate");
   res.json({ success: true, classes });
+});
+
+const getClass = asyncHandler(async (req, res) => {
+  const classDoc = await Class.findById(req.params.id)
+    .populate("classTeacher", "name email")
+    .populate("program", "name code")
+    .populate("academicSession", "name code startDate endDate");
+  if (!classDoc) {
+    res.status(404);
+    throw new Error("Class not found");
+  }
+  res.json({ success: true, class: classDoc });
 });
 
 const createClass = asyncHandler(async (req, res) => {
@@ -77,6 +95,16 @@ const updateAttendancePolicy = asyncHandler(async (req, res) => {
 });
 
 const deleteClass = asyncHandler(async (req, res) => {
+  const [student, subject, section, enrollment] = await Promise.all([
+    Student.exists({ class: req.params.id }),
+    require("../models/Subject").exists({ class: req.params.id }),
+    require("../models/Section").exists({ class: req.params.id }),
+    require("../models/Enrollment").exists({ class: req.params.id }),
+  ]);
+  if (student || subject || section || enrollment) {
+    res.status(409);
+    throw new Error("Class still has students, subjects, sections or enrollments and cannot be deleted");
+  }
   const deleted = await Class.findByIdAndDelete(req.params.id);
   if (!deleted) {
     res.status(404);
@@ -106,4 +134,4 @@ const assignStudents = asyncHandler(async (req, res) => {
   res.json({ success: true, message: `${studentIds.length} student(s) assigned`, warning });
 });
 
-module.exports = { getClasses, getPublicClasses, createClass, updateClass, updateAttendancePolicy, deleteClass, assignStudents };
+module.exports = { getClasses, getClass, getPublicClasses, createClass, updateClass, updateAttendancePolicy, deleteClass, assignStudents };

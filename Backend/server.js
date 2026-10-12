@@ -108,6 +108,17 @@ const feedbackRoutes = require("./src/routes/feedbackRoutes");
 const eventRoutes = require("./src/routes/eventRoutes");
 const admissionRoutes = require("./src/routes/admissionRoutes");
 const contactInquiryRoutes = require("./src/routes/contactInquiryRoutes");
+const programRoutes = require("./src/routes/programRoutes");
+const academicSessionRoutes = require("./src/routes/academicSessionRoutes");
+const sectionRoutes = require("./src/routes/sectionRoutes");
+const scheduleRoutes = require("./src/routes/scheduleRoutes");
+const teacherManagementRoutes = require("./src/routes/teacherRoutes");
+const parentManagementRoutes = require("./src/routes/parentManagementRoutes");
+const guardianRoutes = require("./src/routes/guardianRoutes");
+const crmBillingRoutes = require("./src/routes/crmBillingRoutes");
+const supportWorkflowRoutes = require("./src/routes/supportWorkflowRoutes");
+const progressRoutes = require("./src/routes/progressRoutes");
+const auditLog = require("./src/middleware/auditLog");
 
 const app = express();
 app.set("trust proxy", 1);
@@ -137,21 +148,21 @@ app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/demo-gallery", express.static(path.join(__dirname, "public", "demo-gallery")));
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false, // don't rewrite unchanged sessions on every request
-    saveUninitialized: false, // don't create a session record until something is actually stored in it (e.g. after login)
-    name: process.env.SESSION_COOKIE_NAME || "sid", // don't advertise "connect.sid" (the express-session default) - trivial hardening
-    rolling: true, // refresh the cookie's maxAge on every request - active users stay logged in, idle ones expire on schedule
-    cookie: {
-      httpOnly: true, // JS on the frontend can never read this cookie - blocks a class of XSS-driven session theft
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET,
+  resave: false, // don't rewrite unchanged sessions on every request
+  saveUninitialized: false, // don't create a session record until something is actually stored in it (e.g. after login)
+  name: process.env.SESSION_COOKIE_NAME || "sid", // don't advertise "connect.sid" (the express-session default) - trivial hardening
+  rolling: true, // refresh the cookie's maxAge on every request - active users stay logged in, idle ones expire on schedule
+  cookie: {
+    httpOnly: true, // JS on the frontend can never read this cookie - blocks a class of XSS-driven session theft
 
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    },
-  })
-);
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+  },
+});
+app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -163,6 +174,7 @@ const globalLimiter = rateLimit({
   message: { success: false, message: "Too many requests - please slow down" },
 });
 app.use("/api", globalLimiter);
+app.use(auditLog);
 
 // Basic rate limiting for auth endpoints (brute-force protection)
 const authLimiter = rateLimit({
@@ -219,6 +231,16 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/admissions", admissionRoutes);
 app.use("/api/contact-inquiries", contactInquiryRoutes);
+app.use("/api/programs", programRoutes);
+app.use("/api/academic-sessions", academicSessionRoutes);
+app.use("/api/sections", sectionRoutes);
+app.use("/api/schedules", scheduleRoutes);
+app.use("/api/teachers", teacherManagementRoutes);
+app.use("/api/parents", parentManagementRoutes);
+app.use("/api/guardians", guardianRoutes);
+app.use("/api", crmBillingRoutes);
+app.use("/api", supportWorkflowRoutes);
+app.use("/api/progress", progressRoutes);
 
 // Error handling (must be last)
 app.use(notFound);
@@ -233,6 +255,10 @@ const io = new Server(httpServer, {
     credentials: true,
   },
 });
+
+io.engine.use(sessionMiddleware);
+io.engine.use(passport.initialize());
+io.engine.use(passport.session());
 
 initRealtime(io);
 
