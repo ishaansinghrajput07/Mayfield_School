@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Loading Page
@@ -10,53 +10,51 @@ import RoleRoute from "./routes/RoleRoute";
 
 // CRM Layout
 import CRMLayout from "./components/layout/CRMLayout";
+import PublicLayout from "./components/layout/PublicLayout";
 
 // Public Pages
-import Home from "./pages/Home";
-import Login from "./pages/auth/Login";
-
-// Contact Form Popup
-import ContactFormPopup from "./pages/ContactFormPopup";
+const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./pages/auth/Login"));
 
 // Dashboard
-import Dashboard from "./pages/dashboard/Dashboard";
+const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
 
 // Students & Staff
-import Students from "./pages/students/Students";
-import Parents from "./pages/Parents/Parents";
-import Teachers from "./pages/teachers/Teachers";
+const Students = lazy(() => import("./pages/students/Students"));
+const Parents = lazy(() => import("./pages/Parents/Parents"));
+const Teachers = lazy(() => import("./pages/teachers/Teachers"));
 
 // Academic Management
-import Classes from "./pages/Classes/Classes";
-import Schedules from "./pages/Schedules/Schedules";
-import Attendance from "./pages/Attendance/Attendance";
-import Progress from "./pages/Progress/Progress";
-import Program from "./pages/Programs/Programs";
-import AcademicSessions from "./pages/AcademicSessions/AcademicSessions";
-import Sections from "./pages/Sections/Sections";
-import Subject from "./pages/Subject";
+const Classes = lazy(() => import("./pages/Classes/Classes"));
+const Schedules = lazy(() => import("./pages/Schedules/Schedules"));
+const Attendance = lazy(() => import("./pages/Attendance/Attendance"));
+const Progress = lazy(() => import("./pages/Progress/Progress"));
+const Program = lazy(() => import("./pages/Programs/Programs"));
+const AcademicSessions = lazy(() => import("./pages/AcademicSessions/AcademicSessions"));
+const Sections = lazy(() => import("./pages/Sections/Sections"));
+const Subject = lazy(() => import("./pages/Subject"));
 
 // Fees & Payments
-import Memberships from "./pages/Memberships";
-import Payments from "./pages/Payments/Payments";
-import FeeStructures from "./pages/FeeStructures/FeeStructures";
-import FeeAssignments from "./pages/FeeAssignments/FeeAssignments";
-import Renewals from "./pages/Renewals/Renewals";
+const Memberships = lazy(() => import("./pages/Memberships"));
+const Payments = lazy(() => import("./pages/Payments/Payments"));
+const FeeStructures = lazy(() => import("./pages/FeeStructures/FeeStructures"));
+const FeeAssignments = lazy(() => import("./pages/FeeAssignments/FeeAssignments"));
+const Renewals = lazy(() => import("./pages/Renewals/Renewals"));
 
 // Admissions & Enrollments
-import Admissions from "./pages/Admissions";
-import Enrollments from "./pages/Enrollments";
-import TrialBookings from "./pages/TrialBookings";
+const Admissions = lazy(() => import("./pages/Admissions"));
+const Enrollments = lazy(() => import("./pages/Enrollments"));
+const TrialBookings = lazy(() => import("./pages/TrialBookings"));
 
 // Communication & Reports
-import Queries from "./pages/Queries/Queries";
-import Notifications from "./pages/Notification";
-import AuditLogs from "./pages/AuditLogs";
-import Navbar from "./pages/Navbar";
-import About from "./pages/About";
-import Footer from "./pages/Footer";
-import AdmissionProcess from "./pages/AdmissionProcess";
-import ApplyAdmission from "./pages/ApplyAdmission";
+const Queries = lazy(() => import("./pages/Queries/Queries"));
+const Notifications = lazy(() => import("./pages/Notification"));
+const AdminAnnouncements = lazy(() => import("./pages/AdminAnnouncements"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AuditLogs = lazy(() => import("./pages/AuditLogs"));
+const About = lazy(() => import("./pages/About"));
+const AdmissionProcess = lazy(() => import("./pages/AdmissionProcess"));
+const ApplyAdmission = lazy(() => import("./pages/ApplyAdmission"));
 
 
 
@@ -72,27 +70,33 @@ function App() {
   // ================= MAIN APPLICATION =================
   return (
     <BrowserRouter>
-      {/* ================= ROUTES ================= */}
-      
-       <Navbar />
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center text-sm font-medium text-slate-500">
+            Loading page...
+          </div>
+        }
+      >
       <Routes>
 
         {/* ================= PUBLIC ROUTES ================= */}
 
-        {/* Website Homepage */}
-        <Route path="/" element={<Home />} />
+        <Route element={<PublicLayout />}>
+          {/* Website Homepage */}
+          <Route path="/" element={<Home />} />
 
-        {/* Login */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin-login" element={<Login portalRole="admin" />} />
-        <Route path="/parent-login" element={<Login portalRole="parent" />} />
-        <Route path="/teacher-login" element={<Login portalRole="teacher" />} />
+          {/* Login */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin-login" element={<Login portalRole="admin" />} />
+          <Route path="/parent-login" element={<Login portalRole="parent" />} />
+          <Route path="/teacher-login" element={<Login portalRole="teacher" />} />
 
-        {/* About */}
-        <Route path="/about" element={<About />} />
+          {/* About */}
+          <Route path="/about" element={<About />} />
 
-        <Route path="/admission-process" element={<AdmissionProcess />} />
-        <Route path="/apply" element={<ApplyAdmission />} />
+          <Route path="/admission-process" element={<AdmissionProcess />} />
+          <Route path="/apply" element={<ApplyAdmission />} />
+        </Route>
 
         {/* ================= PROTECTED CRM ROUTES ================= */}
 
@@ -180,6 +184,15 @@ function App() {
                 element={<Notifications />}
               />
 
+              {/* Announcement Management */}
+              <Route
+                path="/announcement-management"
+                element={<AdminAnnouncements />}
+              />
+
+              {/* Administrator Accounts */}
+              <Route path="/admin-users" element={<AdminUsers />} />
+
               {/* Audit Logs */}
               <Route path="/audit-logs" element={<AuditLogs />} />
             </Route>
@@ -204,11 +217,8 @@ function App() {
           element={<Navigate to="/" replace />}
         />
       </Routes>
+      </Suspense>
 
-      {/* ================= CONTACT FORM POPUP ================= */}
-      <ContactFormPopup />
-
-      <Footer/>
     </BrowserRouter>
   );
 }

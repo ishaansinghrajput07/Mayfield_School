@@ -1005,16 +1005,16 @@ export default function Schedule() {
   // =====================================================
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
       {/* HEADER */}
 
-      <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white">
             <CalendarDays size={21} />
           </div>
 
-          <div>
+          <div className="min-w-0">
             <h1 className="text-2xl font-bold text-slate-900">
               Teaching Assignments
             </h1>
@@ -1030,7 +1030,7 @@ export default function Schedule() {
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 lg:w-auto"
         >
           <Plus size={18} />
           Add Assignment

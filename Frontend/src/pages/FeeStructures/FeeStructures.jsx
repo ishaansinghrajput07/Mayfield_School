@@ -529,10 +529,10 @@ function FeeStructures() {
     frequencyFilter !== "all";
 
   return (
-    <div className="min-h-full bg-slate-50 px-5 py-6 lg:px-8 lg:py-8">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] bg-slate-50 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
+      <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+       <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-red-600">
             <FileText size={15} />
             Finance
@@ -548,7 +548,7 @@ function FeeStructures() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => fetchData({ silent: true })}

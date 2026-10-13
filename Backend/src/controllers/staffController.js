@@ -113,24 +113,95 @@ const createStaff = asyncHandler(async (req, res) => {
 // @route   PUT /api/staff/:id
 // @access  Private/Admin
 const updateStaff = asyncHandler(async (req, res) => {
-  const { name, designation, phone, dateOfJoining, isActive } = req.body;
+  const { name, designation, phone, dateOfJoining, isActive, password } = req.body;
 
-  const updates = { name, phone, dateOfJoining, isActive };
-  if (designation !== undefined) {
-    updates.designation = designation;
-    updates.role = designation === "teacher" ? "teacher" : "admin";
-  }
-
-  const staff = await User.findOneAndUpdate(
-    { _id: req.params.id, role: { $in: ["admin", "teacher"] } },
-    updates,
-    { new: true, runValidators: true }
-  );
+  const staff = await User.findOne({
+    _id: req.params.id,
+    role: { $in: ["admin", "teacher"] },
+  });
   if (!staff) {
     res.status(404);
     throw new Error("Staff member not found");
   }
+
+  const willLoseAdminAccess =
+    staff.role === "admin" &&
+    (isActive === false || designation === "teacher");
+  if (
+    willLoseAdminAccess &&
+    String(staff._id) === String(req.user._id)
+  ) {
+    res.status(400);
+    throw new Error("You cannot deactivate or change your own administrator account");
+  }
+  if (willLoseAdminAccess && staff.isActive) {
+    const activeAdminCount = await User.countDocuments({
+      role: "admin",
+      isActive: true,
+    });
+    if (activeAdminCount <= 1) {
+      res.status(400);
+      throw new Error("The last active administrator cannot be deactivated");
+    }
+  }
+
+  if (name !== undefined) staff.name = name;
+  if (phone !== undefined) staff.phone = phone;
+  if (dateOfJoining !== undefined) staff.dateOfJoining = dateOfJoining;
+  if (isActive !== undefined) staff.isActive = isActive;
+  if (password !== undefined && password !== "") {
+    if (typeof password !== "string" || password.length < 6) {
+      res.status(400);
+      throw new Error("Password must be at least 6 characters");
+    }
+    staff.password = password;
+  }
+  if (designation !== undefined) {
+    staff.designation = designation;
+    staff.role = designation === "teacher" ? "teacher" : "admin";
+  }
+  await staff.save();
   res.json({ success: true, staff });
 });
 
-module.exports = { getStaff, createStaff, updateStaff, getTeachers, createTeacher };
+// @desc    Deactivate an administrator account without removing its audit history
+// @route   DELETE /api/staff/:id
+// @access  Private/Admin
+const deleteStaff = asyncHandler(async (req, res) => {
+  const staff = await User.findOne({
+    _id: req.params.id,
+    role: "admin",
+  });
+  if (!staff) {
+    res.status(404);
+    throw new Error("Administrator account not found");
+  }
+  if (String(staff._id) === String(req.user._id)) {
+    res.status(400);
+    throw new Error("You cannot deactivate your own administrator account");
+  }
+
+  if (staff.isActive) {
+    const activeAdminCount = await User.countDocuments({
+      role: "admin",
+      isActive: true,
+    });
+    if (activeAdminCount <= 1) {
+      res.status(400);
+      throw new Error("The last active administrator cannot be deactivated");
+    }
+    staff.isActive = false;
+    await staff.save();
+  }
+
+  res.json({ success: true, staff });
+});
+
+module.exports = {
+  getStaff,
+  createStaff,
+  updateStaff,
+  deleteStaff,
+  getTeachers,
+  createTeacher,
+};

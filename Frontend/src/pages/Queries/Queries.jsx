@@ -761,11 +761,11 @@ function Queries() {
   }, [queries, pagination.total]);
 
   return (
-    <div className="min-h-full bg-slate-50 px-5 py-8 lg:px-8">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] bg-slate-50 p-4 sm:p-6 lg:p-8">
 
       {/* Header */}
-      <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
+      <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+        <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-red-600">
             <MessageSquare size={16} />
             Support & Queries
@@ -790,7 +790,7 @@ function Queries() {
             )
           }
           disabled={refreshing}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-11 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
         >
           <RefreshCw
             size={17}

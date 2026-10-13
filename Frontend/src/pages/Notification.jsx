@@ -90,7 +90,6 @@ const Notifications = () => {
     markAllAsRead,
     refreshNotifications,
   } = useNotifications();
-
   const totalCount = notifications.length;
   const readCount = Math.max(
     0,
@@ -98,11 +97,11 @@ const Notifications = () => {
   );
 
   return (
-    <div className="min-h-full bg-slate-50 px-5 py-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] bg-slate-50 p-4 sm:p-6 lg:p-8">
+      <div>
         {/* Header */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+        <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+          <div className="min-w-0">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white">
                 <Bell size={21} />

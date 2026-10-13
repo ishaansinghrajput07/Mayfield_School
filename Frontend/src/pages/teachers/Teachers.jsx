@@ -510,18 +510,25 @@ export default function Teacher() {
     );
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-[1600px] space-y-6">
       {/* ================================================= */}
       {/* HEADER */}
       {/* ================================================= */}
 
-      <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Teachers
-          </h1>
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+        <div className="min-w-0">
+          <div className="mb-1 flex items-center gap-2">
+            <div className="rounded-xl bg-blue-100 p-2 text-blue-700">
+              <GraduationCap size={20} />
+            </div>
 
-          <p className="mt-1 text-sm text-slate-500">
+            <h1 className="text-2xl font-bold text-slate-900">
+              Teachers
+            </h1>
+          </div>
+
+          <p className="text-sm text-slate-500">
             Manage teacher profiles and their
             academic teaching assignments.
           </p>
@@ -530,7 +537,7 @@ export default function Teacher() {
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 lg:w-auto"
         >
           <Plus size={18} />
           Add Teacher
@@ -883,6 +890,7 @@ export default function Teacher() {
             </table>
           </div>
         )}
+      </div>
       </div>
 
       {/* ================================================= */}

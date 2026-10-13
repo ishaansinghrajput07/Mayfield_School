@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Edit3,
   Eye,
+  GraduationCap,
   Loader2,
   Mail,
   MapPin,
@@ -1031,31 +1032,38 @@ export default function Students() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* PAGE HEADER */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
-            Students
-          </h1>
+    <div className="mx-auto min-h-full w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-[1600px] space-y-6">
+        {/* PAGE HEADER */}
+        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+          <div className="min-w-0">
+            <div className="mb-1 flex items-center gap-2">
+              <div className="rounded-xl bg-blue-100 p-2 text-blue-700">
+                <GraduationCap size={20} />
+              </div>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Manage student profiles and account information.
-          </p>
+              <h1 className="text-2xl font-bold text-slate-900">
+                Students
+              </h1>
+            </div>
+
+            <p className="text-sm text-slate-500">
+              Manage student profiles and account information.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              resetForm();
+              setShowCreateModal(true);
+            }}
+            className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 lg:w-auto"
+          >
+            <Plus size={17} />
+            Add Student
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            resetForm();
-            setShowCreateModal(true);
-          }}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
-        >
-          <Plus size={17} />
-          Add Student
-        </button>
-      </div>
 
       {/* SUCCESS */}
       {success && (
@@ -1117,7 +1125,7 @@ export default function Students() {
       </div>
 
       {/* FILTERS */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row">
           <div className="relative flex-1">
             <Search
@@ -1154,7 +1162,7 @@ export default function Students() {
       </div>
 
       {/* CONTENT */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {loading ? (
           <div className="flex items-center justify-center px-6 py-20">
             <div className="flex items-center gap-3 text-sm text-slate-500">
@@ -1501,6 +1509,7 @@ export default function Students() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

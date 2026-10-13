@@ -823,10 +823,10 @@ const Admissions = () => {
   };
 
   return (
-    <div className="min-h-screen px-5 py-6 lg:px-8">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-slate-950">
             Admissions
           </h1>

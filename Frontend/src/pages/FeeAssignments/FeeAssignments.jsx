@@ -921,10 +921,10 @@ export default function FeeAssignments() {
   };
 
   return (
-    <div className="min-h-full bg-slate-50 p-4 md:p-6 lg:p-8">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] bg-slate-50 p-4 sm:p-6 lg:p-8">
       {/* HEADER */}
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
+      <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+        <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2 text-sm text-slate-500">
             <CircleDollarSign size={16} />
             Finance
@@ -941,7 +941,7 @@ export default function FeeAssignments() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => {

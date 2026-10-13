@@ -57,26 +57,20 @@ export const NotificationProvider = ({
       ]);
 
       const responseData =
-        notificationsResponse?.data
-          ?.data;
+        notificationsResponse?.data?.data ||
+        notificationsResponse?.data;
 
-      /**
-       * Backend response:
-       *
-       * data: {
-       *   items: [],
-       *   unreadCount: 0,
-       *   pagination: {}
-       * }
-       */
       const notificationData =
         Array.isArray(responseData?.items)
           ? responseData.items
+          : Array.isArray(responseData?.notifications)
+          ? responseData.notifications
           : [];
 
       const unreadData =
         unreadResponse?.data?.data
           ?.unreadCount ??
+        unreadResponse?.data?.unreadCount ??
         responseData?.unreadCount ??
         0;
 

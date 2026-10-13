@@ -387,7 +387,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="px-5 py-7 lg:px-8 lg:py-9">
+      <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
         <div className="mb-8 flex items-end justify-between">
           <div>
             <div className="h-4 w-24 animate-pulse rounded bg-slate-200" />
@@ -421,13 +421,13 @@ const Dashboard = () => {
   */
 
   return (
-    <div className="px-5 py-7 lg:px-8 lg:py-9">
+    <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
       {/* ------------------------------------------------------------------ */}
       {/* Header */}
       {/* ------------------------------------------------------------------ */}
 
-      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-        <div>
+      <div className="mb-8 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+        <div className="min-w-0">
           <p className="text-sm font-semibold text-slate-500">
             Overview
           </p>
@@ -449,7 +449,7 @@ const Dashboard = () => {
           type="button"
           onClick={loadDashboard}
           disabled={loading}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60"
+          className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60 lg:w-auto"
         >
           <RefreshCcw
             size={16}

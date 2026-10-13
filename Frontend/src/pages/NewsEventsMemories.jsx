@@ -51,7 +51,7 @@ const NewsEventsMemories = () => {
         <div
           className="news-sketch absolute -inset-[6%] bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/images/school-sketch-bg.png')",
+            backgroundImage: "url('/images/hero-building.jpg')",
           }}
         />
 

@@ -1153,12 +1153,12 @@ const Attendance = () => {
   // =====================================================
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
       {/* =================================================
           HEADER
       ================================================= */}
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div>
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white">
@@ -1188,7 +1188,7 @@ const Attendance = () => {
             loadingStudents ||
             loadingExistingAttendance
           }
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
         >
           <RefreshCw
             size={17}

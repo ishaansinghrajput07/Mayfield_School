@@ -784,7 +784,7 @@ function Progress() {
   // ============================================================
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="Progress"
         intro="Track student skill development, belt progression, assessments, instructor feedback, and next goals."
@@ -794,7 +794,7 @@ function Progress() {
       {/* ACTIONS */}
       {/* ====================================================== */}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div className="flex flex-wrap gap-2">
           <Button
             onClick={

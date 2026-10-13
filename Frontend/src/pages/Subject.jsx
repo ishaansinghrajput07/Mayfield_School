@@ -736,13 +736,13 @@ const Subject = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
       {/* =====================================================
           HEADER
       ===================================================== */}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-slate-900">
             Subjects
           </h1>
@@ -758,7 +758,7 @@ const Subject = () => {
           onClick={
             openCreateModal
           }
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 lg:w-auto"
         >
           <Plus size={18} />
           Add Subject

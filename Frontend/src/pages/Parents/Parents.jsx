@@ -978,11 +978,11 @@ export default function Parents() {
   }, [students, selectedStudentIds]);
 
   return (
-    <div className="min-h-full bg-slate-50 p-4 sm:p-6 lg:p-8">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-[1600px]">
         {/* HEADER */}
-        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
+        <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+          <div className="min-w-0">
             <div className="mb-1 flex items-center gap-2">
               <div className="rounded-xl bg-teal-100 p-2 text-teal-700">
                 <Users size={20} />

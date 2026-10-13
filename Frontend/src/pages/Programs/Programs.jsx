@@ -361,12 +361,12 @@ const Programs = () => {
   };
 
   return (
-    <div className="p-5 lg:p-8">
+    <div className="mx-auto min-h-full w-full max-w-[1600px] bg-slate-50 p-4 sm:p-6 lg:p-8">
 
       {/* Page Header */}
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
 
-        <div>
+        <div className="min-w-0">
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
             Academic Section
           </p>
@@ -384,7 +384,7 @@ const Programs = () => {
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+          className="inline-flex w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 lg:w-auto"
         >
           <Plus size={18} />
           New Program

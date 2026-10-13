@@ -27,6 +27,8 @@ import {
   Layers3,
   School,
   ListTree,
+  Megaphone,
+  Shield,
 } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
@@ -178,6 +180,18 @@ const navigation = [
         path: "/notifications",
         icon: Bell,
       },
+      {
+        label: "Manage Announcements",
+        path: "/announcement-management",
+        icon: Megaphone,
+        adminOnly: true,
+      },
+      {
+        label: "Admin Users",
+        path: "/admin-users",
+        icon: Shield,
+        adminOnly: true,
+      },
     ],
   },
 
@@ -230,6 +244,7 @@ const CRMLayout = () => {
 
       {/* Sidebar */}
       <aside
+        id="admin-sidebar"
         className={[
           "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200 bg-white transition-all duration-300",
           collapsed ? "w-[82px]" : "w-[270px]",
@@ -278,7 +293,9 @@ const CRMLayout = () => {
               )}
 
               <div className="space-y-1">
-                {section.items.map((item) => {
+                {section.items
+                  .filter((item) => !item.adminOnly || user?.role === "admin")
+                  .map((item) => {
                   const Icon = item.icon;
 
                   {/* Nested Academic Section */}
@@ -424,6 +441,10 @@ const CRMLayout = () => {
             onClick={() =>
               setCollapsed((value) => !value)
             }
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
+            aria-controls="admin-sidebar"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             className="flex w-full items-center justify-center rounded-xl border border-slate-200 py-2.5 text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
           >
             {collapsed ? (
@@ -468,6 +489,24 @@ const CRMLayout = () => {
         {/* Header */}
         <header className="sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-slate-200 bg-white/95 px-5 backdrop-blur lg:px-8">
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                setCollapsed((value) => !value)
+              }
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-expanded={!collapsed}
+              aria-controls="admin-sidebar"
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className="hidden rounded-xl border border-slate-200 p-2.5 text-slate-600 transition hover:bg-slate-50 lg:inline-flex"
+            >
+              {collapsed ? (
+                <ChevronRight size={20} />
+              ) : (
+                <ChevronLeft size={20} />
+              )}
+            </button>
+
             <button
               type="button"
               onClick={() =>
@@ -535,7 +574,7 @@ const CRMLayout = () => {
           </div>
         </header>
 
-        <main>
+        <main className="min-h-[calc(100vh-76px)] bg-slate-50">
           <Outlet />
         </main>
       </div>
