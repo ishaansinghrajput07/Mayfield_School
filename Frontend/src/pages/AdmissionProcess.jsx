@@ -269,7 +269,10 @@ export default function App() {
       </section>
 
       {/* ================= ADMISSION PROCESS SECTION ================= */}
-      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        id="all-steps"
+        className="scroll-mt-24 py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
 
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 pb-4 border-b border-slate-200">
 

@@ -55,6 +55,36 @@ const AuditLogs = lazy(() => import("./pages/AuditLogs"));
 const About = lazy(() => import("./pages/About"));
 const AdmissionProcess = lazy(() => import("./pages/AdmissionProcess"));
 const ApplyAdmission = lazy(() => import("./pages/ApplyAdmission"));
+const SchoolLife = lazy(() =>
+  import("./pages/SchoolInformationPages").then((module) => ({
+    default: module.SchoolLifePage,
+  })),
+);
+const Facilities = lazy(() =>
+  import("./pages/SchoolInformationPages").then((module) => ({
+    default: module.FacilitiesPage,
+  })),
+);
+const Events = lazy(() =>
+  import("./pages/SchoolInformationPages").then((module) => ({
+    default: module.EventsPage,
+  })),
+);
+const ClassesFees = lazy(() =>
+  import("./pages/SchoolInformationPages").then((module) => ({
+    default: module.ClassesFeesPage,
+  })),
+);
+const Gallery = lazy(() =>
+  import("./pages/SchoolInformationPages").then((module) => ({
+    default: module.GalleryPage,
+  })),
+);
+const Contact = lazy(() =>
+  import("./pages/SchoolInformationPages").then((module) => ({
+    default: module.ContactPage,
+  })),
+);
 
 
 
@@ -95,6 +125,12 @@ function App() {
           <Route path="/about" element={<About />} />
 
           <Route path="/admission-process" element={<AdmissionProcess />} />
+          <Route path="/school-life" element={<SchoolLife />} />
+          <Route path="/facilities" element={<Facilities />} />
+          <Route path="/events-activities" element={<Events />} />
+          <Route path="/classes-fees" element={<ClassesFees />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/apply" element={<ApplyAdmission />} />
         </Route>
 

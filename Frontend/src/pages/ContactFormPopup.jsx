@@ -35,7 +35,7 @@ const ContactFormPopup = () => {
 
     setTimeout(() => {
       setIsOpen(true);
-    }, 50000);
+    }, 500000);
   };
 
   if (!isOpen) {
@@ -175,7 +175,7 @@ const ContactFormPopup = () => {
             type="button"
             onClick={handleClose}
             aria-label="Close popup"
-            className="group absolute right-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-lg backdrop-blur-xl transition-all duration-300 hover:rotate-90 hover:bg-slate-900 hover:text-white sm:right-5 sm:top-5"
+            className="group absolute right-3 top-3 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-lg backdrop-blur-xl transition-all duration-300 hover:rotate-90 hover:bg-slate-900 hover:text-white sm:right-5 sm:top-5 sm:h-10 sm:w-10"
           >
             <X size={18} />
           </button>
@@ -190,11 +190,11 @@ const ContactFormPopup = () => {
                 TOP BRAND
             ================================================== */}
 
-            <div className="flex items-center justify-between">
+            <div className="flex min-w-0 items-center justify-between gap-3 pr-9 sm:pr-12">
 
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
 
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white p-1.5 shadow-md sm:h-12 sm:w-12">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white p-1.5 shadow-md sm:h-12 sm:w-12">
                   <img
                     src="/images/school-logo.png"
                     alt="Mayfield Global School"
@@ -202,25 +202,25 @@ const ContactFormPopup = () => {
                   />
                 </div>
 
-                <div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.24em] text-slate-900 sm:text-[10px]">
+                <div className="min-w-0">
+                  <p className="break-words text-[9px] font-black uppercase leading-tight tracking-[0.12em] text-slate-900 sm:text-[10px] sm:tracking-[0.24em]">
                     Mayfield Global School
                   </p>
 
-                  <div className="mt-1 flex items-center gap-1.5">
+                  <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
                     <MapPin
                       size={11}
                       className="text-red-500"
                     />
 
-                    <span className="text-[8px] font-semibold uppercase tracking-[0.15em] text-slate-500 sm:text-[9px]">
+                    <span className="text-[7px] font-semibold uppercase leading-tight tracking-[0.08em] text-slate-500 sm:text-[9px] sm:tracking-[0.15em]">
                       Neora · Patna · Bihar
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm sm:flex">
+              <div className="hidden shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm sm:flex">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
 
                 <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-600">

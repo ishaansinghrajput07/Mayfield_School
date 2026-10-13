@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Search,
   Menu,
   X,
   Megaphone,
+  Star,
   ChevronRight,
   UserRound,
   GraduationCap,
@@ -74,7 +76,7 @@ const Header = () => {
     {
       name: "EVENTS & ACTIVITIES",
       icon: CalendarDays,
-      link: "/events",
+      link: "/events-activities",
     },
     {
       name: "CLASSES & FEES",
@@ -94,7 +96,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="relative z-50 w-full font-serif bg-white shadow-sm">
+    <header className="sticky top-0 z-[100] w-full bg-white font-serif shadow-md">
 
       {/* =====================================================
           MAIN NAVBAR
@@ -107,12 +109,21 @@ const Header = () => {
           justify-between
           h-[72px]
           md:h-20
+          max-[420px]:h-[104px]
+          max-[420px]:flex-col
+          max-[420px]:items-stretch
+          max-[420px]:justify-center
+          max-[420px]:gap-1
           bg-white
-          border-b
-          border-gray-200
+          border-b-2
+          border-solid
+          border-slate-700
+          sm:border-b
+          sm:border-slate-600
           px-1.5
           sm:px-3
-          md:px-12
+          md:pl-12
+          md:pr-5
           min-w-0
         "
       >
@@ -129,6 +140,10 @@ const Header = () => {
     py-2
     min-w-0
     flex-1
+    max-[420px]:h-[52px]
+    max-[420px]:w-full
+    max-[420px]:flex-none
+    max-[420px]:py-0
   "
 >
 
@@ -228,6 +243,11 @@ const Header = () => {
             h-full
             py-2
             shrink-0
+            max-[420px]:h-[36px]
+            max-[420px]:w-full
+            max-[420px]:justify-end
+            max-[420px]:gap-2
+            max-[420px]:py-0
           "
         >
 
@@ -636,6 +656,7 @@ const Header = () => {
 
                 top-[72px]
                 md:top-20
+                max-[420px]:top-[104px]
 
                 bg-black/55
                 backdrop-blur-[2px]
@@ -653,12 +674,13 @@ const Header = () => {
                 top-full
 
                 w-[310px]
-                sm:w-[370px]
-                md:w-[410px]
+                sm:w-[360px]
+                md:w-[360px]
 
                 max-w-[calc(100vw-12px)]
 
                 max-h-[calc(100vh-80px)]
+                max-[420px]:max-h-[calc(100vh-104px)]
 
                 overflow-y-auto
 
@@ -863,9 +885,9 @@ const Header = () => {
                     const Icon = item.icon;
 
                     return (
-                      <a
+                      <Link
                         key={index}
-                        href={item.link}
+                        to={item.link}
                         onClick={() => setIsMenuOpen(false)}
                         className="
                           group
@@ -938,7 +960,7 @@ const Header = () => {
                           {item.name}
                         </span>
 
-                      </a>
+                      </Link>
                     );
 
                   })}
@@ -1129,8 +1151,8 @@ const Header = () => {
               {/* ================= CLASSES & FEES HIGHLIGHT ================= */}
               <div className="px-4 pb-5">
 
-                <a
-                  href="/classes-fees"
+                <Link
+                  to="/classes-fees"
                   onClick={() => setIsMenuOpen(false)}
                   className="
                     group
@@ -1216,7 +1238,7 @@ const Header = () => {
 
                   </div>
 
-                </a>
+                </Link>
 
               </div>
 
@@ -1280,10 +1302,10 @@ const Header = () => {
 
           h-9
 
-          bg-[#e9e9e9]
+          bg-amber-400
 
           border-b
-          border-gray-300
+          border-[#1C398E]
 
           overflow-hidden
 
@@ -1301,7 +1323,7 @@ const Header = () => {
             items-center
             gap-1.5
 
-            bg-[#e9e9e9]
+            bg-amber-400
 
             px-4
             md:px-8
@@ -1311,7 +1333,7 @@ const Header = () => {
             shrink-0
 
             border-r
-            border-gray-400
+            border-[#1C398E]/30
           "
         >
 
@@ -1320,7 +1342,7 @@ const Header = () => {
               w-4
               h-4
 
-              text-[#28518e]
+              text-[#1C398E]
 
               shrink-0
             "
@@ -1332,7 +1354,7 @@ const Header = () => {
 
               font-bold
 
-              text-gray-800
+              text-[#1C398E]
 
               uppercase
 
@@ -1355,6 +1377,7 @@ const Header = () => {
 
             flex
             items-center
+            bg-[#1C398E]
           "
         >
 
@@ -1363,7 +1386,7 @@ const Header = () => {
               flex
               items-center
 
-              gap-5
+              gap-2.5
 
               whitespace-nowrap
 
@@ -1372,7 +1395,7 @@ const Header = () => {
               text-xs
               md:text-sm
 
-              text-gray-800
+              text-white
             "
           >
 
@@ -1383,24 +1406,18 @@ const Header = () => {
                   <a
                     href="/updates"
                     className="
-                      hover:text-[#28518e]
+                      hover:text-amber-300
                       transition-colors
                     "
                   >
                     {announcement}
                   </a>
 
-                  <span
-                    className="
-                      w-1.5
-                      h-1.5
-
-                      rounded-full
-
-                      bg-[#C49A35]
-
-                      shrink-0
-                    "
+                  <Star
+                    size={10}
+                    fill="currentColor"
+                    className="shrink-0 text-amber-300"
+                    aria-hidden="true"
                   />
 
                 </React.Fragment>
