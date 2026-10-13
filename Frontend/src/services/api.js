@@ -1,11 +1,35 @@
 import axios from "axios";
 
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const developmentApiUrl = import.meta.env.DEV
+  ? "http://localhost:5000/api"
+  : "";
+const apiBaseUrl = configuredApiUrl || developmentApiUrl;
+const missingProductionApiUrl =
+  import.meta.env.PROD && !configuredApiUrl;
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  baseURL: apiBaseUrl,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+api.interceptors.request.use((config) => {
+  if (missingProductionApiUrl) {
+    throw new Error(
+      "VITE_API_URL is not configured for production. Set it in Vercel to the deployed backend API URL ending in /api, then redeploy.",
+    );
+  }
+
+  if (import.meta.env.PROD && /localhost|127\.0\.0\.1/i.test(apiBaseUrl)) {
+    throw new Error(
+      "VITE_API_URL points to localhost in production. Set it in Vercel to the deployed backend API URL ending in /api, then redeploy.",
+    );
+  }
+
+  return config;
 });
 
 const getApiMessage = (response) => {

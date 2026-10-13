@@ -101,6 +101,25 @@ npm start
 
 The API will be available at `http://localhost:5000` (or whatever `PORT` you set), and will accept requests from `CLIENT_URL`. Outside production, HTTP origins on `localhost`, `127.0.0.1`, and `::1` are also accepted on any port so Vite's alternate development ports work. Production continues to require exact origins from `CLIENT_URL`.
 
+### Production frontend/backend configuration
+
+The Vercel frontend and backend must use their deployed URLs; a browser visiting
+the production frontend cannot reach `localhost:5000` on your computer.
+
+1. In Vercel, set `VITE_API_URL` for the frontend project to the deployed backend
+   API URL, including `/api` (for example, `https://your-backend.example.com/api`),
+   then redeploy. This is a Vite build-time variable.
+2. In the backend hosting platform, set `NODE_ENV=production` and set
+   `CLIENT_URL` to the exact frontend origin, with no path or trailing slash.
+   For the current Vercel deployments, use
+   `https://mayfieldschool-zr8b.vercel.app,https://mayfieldschool-zr8b-git-main-ishaan15.vercel.app,https://mayfieldschool-zr8b-7t02n34hz-ishaan15.vercel.app`.
+   Separate additional production domains with commas.
+3. Redeploy/restart the backend after changing its environment variables.
+
+Production startup fails if `CLIENT_URL` is missing, rather than silently
+allowing requests from any origin. The frontend does not fall back to localhost
+in production; it reports a configuration error until `VITE_API_URL` is set.
+
 ## Security Notes
 
 - Never commit your real `.env` file — only commit an `.env.example` with placeholder values.

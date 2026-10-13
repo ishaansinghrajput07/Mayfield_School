@@ -29,12 +29,11 @@ if (process.env.NODE_ENV === "production" && process.env.SESSION_SECRET.includes
   console.error("SESSION_SECRET is still set to the placeholder value from .env.example - refusing to start in production.");
   process.exit(1);
 }
-if (process.env.NODE_ENV === "production" && !process.env.CLIENT_URL) {
-  console.warn(
-    "CLIENT_URL is not set in production - CORS will accept requests from any " +
-      "origin. Set it to your deployed frontend's exact URL (comma-separated " +
-      "if there's more than one, e.g. a custom domain + a Vercel preview URL)."
+if (process.env.NODE_ENV === "production" && !process.env.CLIENT_URL?.trim()) {
+  console.error(
+    "CLIENT_URL must be set in production to the exact deployed frontend origin(s), comma-separated if needed.",
   );
+  process.exit(1);
 }
 
 const parseAllowedOrigins = (raw) =>
