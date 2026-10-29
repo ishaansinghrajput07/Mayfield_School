@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Search,
   Menu,
@@ -23,6 +23,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const location = useLocation();
 
   // ================= ANNOUNCEMENTS =================
   const announcements = [
@@ -1288,6 +1289,35 @@ const Header = () => {
           </>
         )}
 
+      </nav>
+
+      <nav
+        aria-label="Primary navigation"
+        className="hidden border-t border-white/10 bg-[#1C398E] lg:block"
+      >
+        <div className="mx-auto flex h-12 max-w-[1600px] items-center justify-center gap-1 overflow-x-auto px-3">
+          <Link
+            to="/"
+            aria-current={location.pathname === "/" ? "page" : undefined}
+            className={`flex h-full shrink-0 items-center border-b-[3px] px-3 text-[11px] font-bold tracking-wide transition-colors ${location.pathname === "/" ? "border-[#E2C56F] bg-white/10 text-[#F2D98D]" : "border-transparent text-white/85 hover:bg-white/10 hover:text-white"}`}
+          >
+            HOME
+          </Link>
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.link;
+
+            return (
+              <Link
+                key={item.link}
+                to={item.link}
+                aria-current={isActive ? "page" : undefined}
+                className={`flex h-full shrink-0 items-center border-b-[3px] px-3 text-[11px] font-bold tracking-wide transition-colors ${isActive ? "border-[#E2C56F] bg-white/10 text-[#F2D98D]" : "border-transparent text-white/85 hover:bg-white/10 hover:text-white"}`}
+              >
+                {item.name}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
 

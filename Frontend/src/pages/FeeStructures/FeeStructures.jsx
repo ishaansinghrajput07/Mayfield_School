@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
-  ChevronRight,
   Clock3,
   Edit3,
+  Eye,
   FileText,
   Loader2,
   Plus,
@@ -50,6 +50,14 @@ const emptyForm = {
   dueDay: "",
   description: "",
   status: "active",
+};
+
+const getReferenceId = (value) => {
+  if (value && typeof value === "object") {
+    return String(value._id || value.id || "");
+  }
+
+  return String(value || "");
 };
 
 const formatCurrency = (value) => {
@@ -143,46 +151,28 @@ function FeeStructures() {
         setLoading(true);
       }
 
-      const [
-        feeStructuresResponse,
-        sessionsResponse,
-        programsResponse,
-        classesResponse,
-      ] = await Promise.all([
+      const responses = await Promise.allSettled([
         api.get("/fee-structures"),
         api.get("/academic-sessions"),
         api.get("/programs"),
         api.get("/classes"),
       ]);
 
-      const feeStructureList = Array.isArray(
-        feeStructuresResponse?.data?.data
-      )
-        ? feeStructuresResponse.data.data
-        : [];
+      const [feeStructuresResult, sessionsResult, programsResult, classesResult] = responses;
+      const getList = (result, key) => {
+        const list = result.status === "fulfilled" ? result.value?.data?.[key] : null;
+        return Array.isArray(list) ? list : [];
+      };
 
-      const sessionList = Array.isArray(
-        sessionsResponse?.data?.sessions
-      )
-        ? sessionsResponse.data.sessions
-        : [];
+      setFeeStructures(getList(feeStructuresResult, "data"));
+      setSessions(getList(sessionsResult, "sessions"));
+      setPrograms(getList(programsResult, "programs"));
+      setClasses(getList(classesResult, "classes"));
 
-      const programList = Array.isArray(
-        programsResponse?.data?.programs
-      )
-        ? programsResponse.data.programs
-        : [];
-
-      const classList = Array.isArray(
-        classesResponse?.data?.classes
-      )
-        ? classesResponse.data.classes
-        : [];
-
-      setFeeStructures(feeStructureList);
-      setSessions(sessionList);
-      setPrograms(programList);
-      setClasses(classList);
+      const failedRequest = responses.find((result) => result.status === "rejected");
+      if (failedRequest) {
+        throw failedRequest.reason;
+      }
     } catch (err) {
       console.error("Failed to load fee structures:", err);
 
@@ -316,18 +306,9 @@ function FeeStructures() {
     setForm({
       name: item?.name || "",
       code: item?.code || "",
-      academicSession:
-        item?.academicSession?._id ||
-        item?.academicSession ||
-        "",
-      program:
-        item?.program?._id ||
-        item?.program ||
-        "",
-      class:
-        item?.class?._id ||
-        item?.class ||
-        "",
+      academicSession: getReferenceId(item?.academicSession),
+      program: getReferenceId(item?.program),
+      class: getReferenceId(item?.class),
       feeType: item?.feeType || "admission",
       amount:
         item?.amount !== undefined &&
@@ -527,6 +508,14 @@ function FeeStructures() {
     statusFilter !== "all" ||
     feeTypeFilter !== "all" ||
     frequencyFilter !== "all";
+
+  const editingFeeStructure = editingId
+    ? feeStructures.find((item) => item?._id === editingId)
+    : null;
+  const editingSession = editingFeeStructure?.academicSession;
+  const editingProgram = editingFeeStructure?.program;
+  const editingSessionId = getReferenceId(editingSession);
+  const editingProgramId = getReferenceId(editingProgram);
 
   return (
     <div className="mx-auto min-h-full w-full max-w-[1600px] bg-slate-50 p-4 sm:p-6 lg:p-8">
@@ -916,10 +905,11 @@ function FeeStructures() {
                           onClick={() =>
                             setSelectedFeeStructure(item)
                           }
-                          className="inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                          aria-label="View fee structure"
+                          title="View"
+                          className="rounded-xl border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
                         >
-                          View
-                          <ChevronRight size={14} />
+                          <Eye size={15} />
                         </button>
 
                         <button
@@ -1058,12 +1048,24 @@ function FeeStructures() {
 
                       {sessions.map((session) => (
                         <option
-                          key={session._id}
-                          value={session._id}
+                          key={getReferenceId(session)}
+                          value={getReferenceId(session)}
                         >
                           {session.name} ({session.code})
                         </option>
                       ))}
+                      {editingSessionId &&
+                        !sessions.some(
+                          (session) =>
+                            getReferenceId(session) === editingSessionId
+                        ) && (
+                          <option value={editingSessionId}>
+                            {editingSession?.name || "Current session"}
+                            {editingSession?.code
+                              ? ` (${editingSession.code})`
+                              : ""}
+                          </option>
+                        )}
                     </select>
                   </div>
 
@@ -1094,12 +1096,24 @@ function FeeStructures() {
 
                       {programs.map((program) => (
                         <option
-                          key={program._id}
-                          value={program._id}
+                          key={getReferenceId(program)}
+                          value={getReferenceId(program)}
                         >
                           {program.name} ({program.code})
                         </option>
                       ))}
+                      {editingProgramId &&
+                        !programs.some(
+                          (program) =>
+                            getReferenceId(program) === editingProgramId
+                        ) && (
+                          <option value={editingProgramId}>
+                            {editingProgram?.name || "Current program"}
+                            {editingProgram?.code
+                              ? ` (${editingProgram.code})`
+                              : ""}
+                          </option>
+                        )}
                     </select>
                   </div>
 
